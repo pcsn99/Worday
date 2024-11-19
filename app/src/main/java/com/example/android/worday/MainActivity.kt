@@ -1,5 +1,6 @@
 package com.example.android.worday
 
+import MainMenuScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -49,14 +50,13 @@ fun AppNavigation(navController: NavHostController) {
         composable("game") {
             GameScreen(
                 context = LocalContext.current,
-                navController = navController, // Ensure this matches the name of your NavController
+                navController = navController,
                 onGameComplete = { totalScore, roundsCorrect ->
                     navController.navigate("summary/$totalScore/$roundsCorrect")
                 },
                 margin = 16.dp
             )
         }
-
 
         // Summary Screen
         composable(
@@ -66,14 +66,12 @@ fun AppNavigation(navController: NavHostController) {
                 navArgument("roundsCorrect") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-            // Extract arguments from the back stack
             val totalScore = backStackEntry.arguments?.getInt("totalScore") ?: 0
             val roundsCorrect = backStackEntry.arguments?.getInt("roundsCorrect") ?: 0
             SummaryScreen(
                 totalScore = totalScore,
                 roundsCorrect = roundsCorrect,
                 onRestartGame = {
-                    // Navigate back to the main menu to restart the game
                     navController.navigate("MainMenu") {
                         popUpTo("MainMenu") { inclusive = true }
                     }

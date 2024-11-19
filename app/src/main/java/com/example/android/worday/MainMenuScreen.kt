@@ -1,36 +1,45 @@
-package com.example.android.worday
-
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.android.worday.ui.theme.WorDayTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun MainMenuScreen(
-    onHowToPlayClick: ()-> Unit,
-    onStartGameClick: ()-> Unit
+    onHowToPlayClick: () -> Unit,
+    onStartGameClick: () -> Unit
 ) {
+    // State variables to control the visibility of animations
+    val showTitle = remember { mutableStateOf(false) }
+    val showTagline = remember { mutableStateOf(false) }
+    val showButtons = remember { mutableStateOf(false) }
 
-
+    // Animations: Sequentially fade in elements with slide-in effects
+    LaunchedEffect(Unit) {
+        delay(500) // Delay before title appears
+        showTitle.value = true
+        delay(500) // Delay before tagline appears
+        showTagline.value = true
+        delay(500) // Delay before buttons appear
+        showButtons.value = true
+    }
 
     Scaffold(
-        modifier = Modifier.wrapContentSize(),
+        modifier = Modifier.fillMaxSize(),
         content = { innerPadding ->
 
             Box(
@@ -38,14 +47,6 @@ fun MainMenuScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                // Background Image
-            //    Image(
-            //        painter = painterResource(id = R.drawable.background_image),
-            //        contentDescription = null,
-            //        modifier = Modifier.fillMaxSize(),
-            //        contentScale = ContentScale.Crop
-            //    )
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -54,31 +55,63 @@ fun MainMenuScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-
-                    Text(
-                        "WorDay",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
-
-
-                    Button(
-                        onClick = onHowToPlayClick,
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .padding(vertical = 8.dp)
+                    // Title Animation
+                    AnimatedVisibility(
+                        visible = showTitle.value,
+                        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+                            initialOffsetY = { -50 },
+                            animationSpec = tween(500)
+                        )
                     ) {
-                        Text("How to Play")
+                        Text(
+                            "WorDay",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
                     }
 
-
-                    Button(
-                        onClick = onStartGameClick,
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .padding(vertical = 8.dp)
+                    // Tagline Animation
+                    AnimatedVisibility(
+                        visible = showTagline.value,
+                        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+                            initialOffsetY = { 50 },
+                            animationSpec = tween(500)
+                        )
                     ) {
-                        Text("Start Game")
+                        Text(
+                            "How many points can you get by guessing the words?",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 32.dp)
+                        )
+                    }
+
+                    // Buttons Animation
+                    AnimatedVisibility(
+                        visible = showButtons.value,
+                        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+                            initialOffsetY = { 100 },
+                            animationSpec = tween(500)
+                        )
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Button(
+                                onClick = onHowToPlayClick,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .padding(vertical = 8.dp)
+                            ) {
+                                Text("How to Play")
+                            }
+
+                            Button(
+                                onClick = onStartGameClick,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .padding(vertical = 8.dp)
+                            ) {
+                                Text("Start Game")
+                            }
+                        }
                     }
                 }
             }
