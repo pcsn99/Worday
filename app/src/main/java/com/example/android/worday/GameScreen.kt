@@ -196,7 +196,8 @@ fun AutomatedNavigationRow(
     userGuessList: List<String>,
     onGuessChanged: (List<String>) -> Unit
 ) {
-    val focusRequesters = remember { List(word.length) { FocusRequester() } }
+
+    val focusRequesters = remember(word) { List(word.length) { FocusRequester() } }
 
     require(word.length == userGuessList.size) {
         "Word length (${word.length}) and userGuessList size (${userGuessList.size}) must match"
@@ -237,6 +238,11 @@ fun AutomatedNavigationRow(
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
             )
         }
+    }
+
+    // Automatically request focus for the first box when the row is displayed
+    LaunchedEffect(focusRequesters) {
+        focusRequesters.firstOrNull()?.requestFocus()
     }
 }
 
