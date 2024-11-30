@@ -1,7 +1,10 @@
 package com.example.android.worday
 
 import android.content.Context
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,7 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -24,7 +29,7 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun GameScreen(
     context: Context,
-    navController: NavController, // Added NavController
+    navController: NavController,
     onGameComplete: (Int, Int) -> Unit,
     margin: Dp = 16.dp
 ) {
@@ -53,10 +58,9 @@ fun GameScreen(
     fun resetPlayStatus() {
         sharedPreferences.edit().remove("lastPlayedTime").apply()
         canPlay = true
-        navController.navigate("mainMenu") // Navigate back to the main menu
+        navController.navigate("mainMenu")
     }
 
-    // Fetches the word and hints
     fun fetchWordAndHints(round: Int) {
         coroutineScope.launch {
             try {
@@ -97,47 +101,79 @@ fun GameScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(margin),
-                contentAlignment = Alignment.Center
             ) {
+                // Background Image
+                Image(
+                    painter = painterResource(id = R.drawable.background_image),
+                    contentDescription = "Background Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
                 Column(
                     modifier = Modifier
-                        .wrapContentSize()
+                        .fillMaxSize()
                         .padding(margin),
+                    verticalArrangement = Arrangement.spacedBy(16.dp), // Use spacedBy for consistent spacing
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Total Score: $totalScore", fontSize = 18.sp)
-                    Text("Round: $round / $maxRounds", fontSize = 16.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Hint: ${hints.getOrNull(hintIndex) ?: "No hint available"}", fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
+                    // Top bar with Total Score
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Round: $round / $maxRounds", fontSize = 16.sp)
+                        Text("Score: $totalScore", fontSize = 16.sp)
+                    }
 
+                    // Hint Circles
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        repeat(maxMistakes) { index ->
+                            if (index < mistakes) {
+                                Text(
+                                    text = "X",
+                                    fontSize = 20.sp,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .background(MaterialTheme.colorScheme.secondary, CircleShape)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                    }
+
+                    // Word Guess Grid
                     AutomatedNavigationRow(
                         word = word,
                         userGuessList = userGuessList,
                         onGuessChanged = { updatedList -> userGuessList = updatedList }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    // Hint Text (if available)
+                    Text(
+                        text = "Hint: ${hints.getOrNull(hintIndex) ?: "No hint available"}",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
 
-                    Button(onClick = {
-                        val userGuess = userGuessList.joinToString("")
-                        if (userGuess.equals(word, ignoreCase = true)) {
-                            totalScore += currentScore
-                            roundsCorrect += 1
-                            if (round < maxRounds) {
-                                round += 1
-                                fetchWordAndHints(round)
-                            } else {
-                                saveLastPlayedTime()
-                                onGameComplete(totalScore, roundsCorrect)
-                            }
-                        } else {
-                            mistakes += 1
-                            currentScore -= 10
-                            hintIndex = (hintIndex + 1).coerceAtMost(hints.size - 1)
-
-                            if (mistakes >= maxMistakes) {
+                    // Submit Button
+                    Button(
+                        onClick = {
+                            val userGuess = userGuessList.joinToString("")
+                            if (userGuess.equals(word, ignoreCase = true)) {
+                                totalScore += currentScore
+                                roundsCorrect += 1
                                 if (round < maxRounds) {
                                     round += 1
                                     fetchWordAndHints(round)
@@ -145,9 +181,23 @@ fun GameScreen(
                                     saveLastPlayedTime()
                                     onGameComplete(totalScore, roundsCorrect)
                                 }
+                            } else {
+                                mistakes += 1
+                                currentScore -= 10
+                                hintIndex = (hintIndex + 1).coerceAtMost(hints.size - 1)
+
+                                if (mistakes >= maxMistakes) {
+                                    if (round < maxRounds) {
+                                        round += 1
+                                        fetchWordAndHints(round)
+                                    } else {
+                                        saveLastPlayedTime()
+                                        onGameComplete(totalScore, roundsCorrect)
+                                    }
+                                }
                             }
                         }
-                    }) {
+                    ) {
                         Text("Submit Guess")
                     }
                 }
@@ -189,6 +239,8 @@ fun GameScreen(
         }
     }
 }
+
+
 
 @Composable
 fun AutomatedNavigationRow(

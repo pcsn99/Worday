@@ -3,12 +3,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -28,25 +25,17 @@ fun MainMenuScreen(
     onHowToPlayClick: () -> Unit,
     onStartGameClick: () -> Unit
 ) {
-    // State variables to control the visibility of animations
-    val showTitle = remember { mutableStateOf(false) }
-    val showTagline = remember { mutableStateOf(false) }
-    val showButtons = remember { mutableStateOf(false) }
+    val showContent = remember { mutableStateOf(false) }
 
-    // Animations: Sequentially fade in elements with slide-in effects
+    // Trigger animations after a delay
     LaunchedEffect(Unit) {
-        delay(500) // Delay before title appears
-        showTitle.value = true
-        delay(500) // Delay before tagline appears
-        showTagline.value = true
-        delay(500) // Delay before buttons appear
-        showButtons.value = true
+        delay(500) // Delay before animations start
+        showContent.value = true
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         content = { innerPadding ->
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -65,65 +54,80 @@ fun MainMenuScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Title Animation
+                    // Logo Animation: Slides from the top
                     AnimatedVisibility(
-                        visible = showTitle.value,
+                        visible = showContent.value,
                         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                            initialOffsetY = { -50 },
-                            animationSpec = tween(500)
+                            initialOffsetY = { -200 } // Slides in from the top
                         )
                     ) {
-                        Text(
-                            "WorDay",
-                            style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                        Image(
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier
+                                .padding(top = 130.dp) // Reduced bottom padding
+                                .fillMaxWidth() // Expand horizontally
+                                .height(200.dp) // Set specific height
                         )
                     }
 
-                    // Tagline Animation
+                    // Tagline as Image
                     AnimatedVisibility(
-                        visible = showTagline.value,
+                        visible = showContent.value,
                         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                            initialOffsetY = { 50 },
-                            animationSpec = tween(500)
+                            initialOffsetY = { 200 } // Slides in from the bottom
                         )
                     ) {
-                        Text(
-                            "How many points can you get by guessing the words?",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(bottom = 32.dp)
+                        Image(
+                            painter = painterResource(id = R.drawable.tagline),
+                            contentDescription = "Tagline",
+                            modifier = Modifier
+                                .fillMaxWidth() // Expand horizontally
+                                .height(110.dp) // Set specific height
+                                .padding(bottom = 16.dp) // Reduced padding below tagline
                         )
                     }
 
-                    // Buttons Animation
+                    // Start Game Button as Image
                     AnimatedVisibility(
-                        visible = showButtons.value,
+                        visible = showContent.value,
                         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                            initialOffsetY = { 100 },
-                            animationSpec = tween(500)
+                            initialOffsetY = { 200 } // Slides in from the bottom
                         )
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Button(
-                                onClick = onHowToPlayClick,
-                                modifier = Modifier
-                                    .fillMaxWidth(0.6f)
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                Text("How to Play")
-                            }
+                        Image(
+                            painter = painterResource(id = R.drawable.playbutton),
+                            contentDescription = "Start Game",
+                            modifier = Modifier
+                                .padding(start = 30.dp)
+                                .size(190.dp) // Standardized size
+                                .clickable { onStartGameClick() }
+                                .padding(bottom = 90.dp) // Space between buttons
+                        )
+                    }
 
-                            Button(
-                                onClick = onStartGameClick,
+                    // Row to Align "How to Play" Button to the Right
+                    AnimatedVisibility(
+                        visible = showContent.value,
+                        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+                            initialOffsetY = { 200 } // Slides in from the bottom
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 16.dp), // Add margin from the right
+                            horizontalArrangement = Arrangement.End // Align to the right
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.how),
+                                contentDescription = "How to Play",
                                 modifier = Modifier
-                                    .fillMaxWidth(0.6f)
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                Text("Start Game")
-                            }
+                                    .size(80.dp) // Standardized size
+                                    .clickable { onHowToPlayClick() }
+                            )
                         }
                     }
                 }
@@ -141,3 +145,5 @@ fun MainMenuPreview() {
         )
     }
 }
+
+
