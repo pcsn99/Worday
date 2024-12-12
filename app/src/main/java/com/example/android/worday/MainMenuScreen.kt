@@ -27,9 +27,9 @@ fun MainMenuScreen(
 ) {
     val showContent = remember { mutableStateOf(false) }
 
-    // Trigger animations after a delay
+
     LaunchedEffect(Unit) {
-        delay(500) // Delay before animations start
+        delay(500)
         showContent.value = true
     }
 
@@ -41,7 +41,7 @@ fun MainMenuScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                // Background Image
+
                 Image(
                     painter = painterResource(id = R.drawable.background_image),
                     contentDescription = null,
@@ -49,52 +49,51 @@ fun MainMenuScreen(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Foreground Content
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Logo Animation: Slides from the top
+
                     AnimatedVisibility(
                         visible = showContent.value,
                         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                            initialOffsetY = { -200 } // Slides in from the top
+                            initialOffsetY = { -200 }
                         )
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.logo),
                             contentDescription = "Logo",
                             modifier = Modifier
-                                .padding(top = 130.dp) // Reduced bottom padding
-                                .fillMaxWidth() // Expand horizontally
-                                .height(200.dp) // Set specific height
+                                .padding(top = 130.dp)
+                                .fillMaxWidth()
+                                .height(200.dp)
                         )
                     }
 
-                    // Tagline as Image
+
                     AnimatedVisibility(
                         visible = showContent.value,
                         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                            initialOffsetY = { 200 } // Slides in from the bottom
+                            initialOffsetY = { 200 }
                         )
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.tagline),
                             contentDescription = "Tagline",
                             modifier = Modifier
-                                .fillMaxWidth() // Expand horizontally
-                                .height(110.dp) // Set specific height
-                                .padding(bottom = 16.dp) // Reduced padding below tagline
+                                .fillMaxWidth()
+                                .height(110.dp)
+                                .padding(bottom = 16.dp)
                         )
                     }
 
-                    // Start Game Button as Image
+
                     AnimatedVisibility(
                         visible = showContent.value,
                         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                            initialOffsetY = { 200 } // Slides in from the bottom
+                            initialOffsetY = { 200 }
                         )
                     ) {
                         Image(
@@ -102,30 +101,30 @@ fun MainMenuScreen(
                             contentDescription = "Start Game",
                             modifier = Modifier
                                 .padding(start = 30.dp)
-                                .size(190.dp) // Standardized size
+                                .size(190.dp)
                                 .clickable { onStartGameClick() }
-                                .padding(bottom = 90.dp) // Space between buttons
+                                .padding(bottom = 90.dp)
                         )
                     }
 
-                    // Row to Align "How to Play" Button to the Right
+
                     AnimatedVisibility(
                         visible = showContent.value,
                         enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
-                            initialOffsetY = { 200 } // Slides in from the bottom
+                            initialOffsetY = { 200 }
                         )
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(end = 16.dp), // Add margin from the right
-                            horizontalArrangement = Arrangement.End // Align to the right
+                                .padding(end = 16.dp),
+                            horizontalArrangement = Arrangement.End
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.how),
                                 contentDescription = "How to Play",
                                 modifier = Modifier
-                                    .size(80.dp) // Standardized size
+                                    .size(80.dp)
                                     .clickable { onHowToPlayClick() }
                             )
                         }

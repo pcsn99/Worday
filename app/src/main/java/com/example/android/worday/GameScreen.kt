@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,9 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -36,7 +40,13 @@ fun GameScreen(
     val sharedPreferences = context.getSharedPreferences("GamePrefs", Context.MODE_PRIVATE)
     val lastPlayedTime = sharedPreferences.getLong("lastPlayedTime", 0)
     val currentTime = System.currentTimeMillis()
-    var canPlay by remember { mutableStateOf(currentTime - lastPlayedTime > TimeUnit.HOURS.toMillis(24)) }
+    var canPlay by remember {
+        mutableStateOf(
+            currentTime - lastPlayedTime > TimeUnit.HOURS.toMillis(
+                24
+            )
+        )
+    }
 
     var totalScore by remember { mutableStateOf(0) }
     var currentScore by remember { mutableStateOf(100) }
@@ -47,7 +57,7 @@ fun GameScreen(
     var round by remember { mutableStateOf(1) }
     var mistakes by remember { mutableStateOf(0) }
     var roundsCorrect by remember { mutableStateOf(0) }
-    val maxRounds = 3
+    val maxRounds = 20
     val maxMistakes = 3
     val coroutineScope = rememberCoroutineScope()
 
@@ -102,7 +112,7 @@ fun GameScreen(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                // Background Image
+
                 Image(
                     painter = painterResource(id = R.drawable.background_image),
                     contentDescription = "Background Image",
@@ -114,7 +124,7 @@ fun GameScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(margin),
-                    verticalArrangement = Arrangement.spacedBy(16.dp), // Use spacedBy for consistent spacing
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Top bar with Total Score
@@ -128,10 +138,11 @@ fun GameScreen(
                         Text("Score: $totalScore", fontSize = 16.sp)
                     }
 
-                    // Hint Circles
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(top = 80.dp)
                             .padding(vertical = 8.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -146,7 +157,10 @@ fun GameScreen(
                                 Box(
                                     modifier = Modifier
                                         .size(20.dp)
-                                        .background(MaterialTheme.colorScheme.secondary, CircleShape)
+                                        .background(
+                                            MaterialTheme.colorScheme.secondary,
+                                            CircleShape
+                                        )
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -198,7 +212,7 @@ fun GameScreen(
                             }
                         }
                     ) {
-                        Text("Submit Guess")
+                        Text("Submit")
                     }
                 }
             }
@@ -212,16 +226,41 @@ fun GameScreen(
         }
     } else {
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier = Modifier
+                .fillMaxSize()
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.background_image),
+                contentDescription = "Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
             Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "You have already played today! Please come back tomorrow.",
-                    fontSize = 16.sp
+                    "You have already played today!",
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF001F54)
+                )
+
+                Text(
+                    "Please come back tomorrow.",
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    color = Color(0xFF001F54)
                 )
             }
 
@@ -232,11 +271,15 @@ fun GameScreen(
                     .align(Alignment.BottomCenter),
                 contentAlignment = Alignment.Center
             ) {
-                Button(onClick = { resetPlayStatus() }) {
-                    Text("Reset (Go to Main Menu)")
+                Button(
+                    onClick = { resetPlayStatus() },
+                    colors = ButtonDefaults.buttonColors(Color(0xFF001F54))
+                ) {
+                    Text("Reset (Go to Main Menu)", color = Color.White)
                 }
             }
         }
+
     }
 }
 
@@ -299,36 +342,85 @@ fun AutomatedNavigationRow(
 }
 
 @Composable
-fun SummaryScreen(totalScore: Int, roundsCorrect: Int, onRestartGame: () -> Unit) {
-    Column(
+fun SummaryScreen(
+    totalScore: Int,
+    roundsCorrect: Int,
+    onRestartGame: () -> Unit
+) {
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Game Complete!", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Total Score: $totalScore", fontSize = 20.sp)
-        Text("Rounds Correct: $roundsCorrect / 3", fontSize = 18.sp)
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRestartGame) {
-            Text("Restart Game")
+        Image(
+            painter = painterResource(id = R.drawable.result_bg),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_logo),
+                contentDescription = "Logo",
+                modifier = Modifier.size(200.dp).padding(top = 80.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Game Complete!",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontFamily = FontFamily.Cursive,
+                    color = Color(0xFF001F54)
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Total Score: $totalScore",
+                fontSize = 20.sp,
+                color = Color(0xFF001F54),
+                fontFamily = FontFamily.SansSerif
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                "Rounds Correct: $roundsCorrect / 20",
+                fontSize = 18.sp,
+                color = Color(0xFF001F54),
+                fontFamily = FontFamily.SansSerif
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = onRestartGame) {
+                Text("Main Menu")
+            }
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable
 fun GameScreenPreview() {
     WorDayTheme {
-        // Create a mock NavController for preview purposes
+
         val mockNavController = rememberNavController()
 
         GameScreen(
-            context = LocalContext.current, // Provide the current context
-            navController = mockNavController, // Pass the mock NavController
-            onGameComplete = { _, _ -> } // Provide a no-op implementation for onGameComplete
+            context = LocalContext.current,
+            navController = mockNavController,
+            onGameComplete = { _, _ -> }
         )
     }
 }
